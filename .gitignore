@@ -1,0 +1,32 @@
+﻿# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Logs & coverage
+logs/
+*.log
+coverage/
+.nyc_output/
+
+# Build outputs
+dist/
+build/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Jest
+jest*.json
+
+# Docker
+*.pid
