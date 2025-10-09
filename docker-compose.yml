@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"   # Expose MongoDB to the host
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-adminpass}
+      # Default database to create on first run
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-shimmerdb}
+    volumes:
+      - mongodb_data:/data/db   # Persist database files in a named Docker volume
+    networks:
+      - sensor-net              # Private network shared with mongo-express
+
+  mongo-express:
+    image: mongo-express:1
+    container_name: mongo-express
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    ports:
+      - "8081:8081"             # Web UI available at http://localhost:8081
+    environment:
+      # Connect with MongoDB admin user
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME:-admin}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-adminpass}
+      # Set to "true" to protect the UI with HTTP Basic Auth
+      ME_CONFIG_BASICAUTH: "false"
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_BASIC_USER:-admin}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_BASIC_PASS:-password}
+    networks:
+      - sensor-net
+
+networks:
+  sensor-net:                   # Default bridge network for service-to-service communication
+
+volumes:
+  mongodb_data:                 # Named volume for MongoDB data (survives container restarts)
